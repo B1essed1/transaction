@@ -1,6 +1,6 @@
 package com.example.transaction_5.entities;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +21,6 @@ public class Card {
     private String currency;
 
     @ManyToOne
-    private User user;
+    private Users users;
 
 }

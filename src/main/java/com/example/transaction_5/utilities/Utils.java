@@ -38,4 +38,11 @@ public class Utils {
             return false;
     }
 
+    public static Boolean isHumo(String cardNumber) {
+        if (cardNumber.substring(0, 3).equals("9860"))
+            return true;
+        else
+            return false;
+    }
+
 }

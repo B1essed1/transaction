@@ -1,19 +1,20 @@
 package com.example.transaction_5.services.ServicesImpls;
 
 import com.example.transaction_5.entities.Card;
-import com.example.transaction_5.entities.User;
+import com.example.transaction_5.entities.Users;
 import com.example.transaction_5.models.CardDto;
+import com.example.transaction_5.models.CardInfo;
+import com.example.transaction_5.models.CardsDetails;
 import com.example.transaction_5.models.ResponseDto;
 import com.example.transaction_5.repositories.CardRepository;
 import com.example.transaction_5.repositories.UserRepository;
 import com.example.transaction_5.services.CardService;
 import com.example.transaction_5.utilities.Utils;
-import jakarta.transaction.Transactional;
+import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class CardServiceImpl implements CardService {
@@ -41,8 +42,13 @@ public class CardServiceImpl implements CardService {
             if (Utils.isVisa(dto.getCarNumber())) {
                 card.setType("VISA");
                 card.setCurrency("USD");
-            } else {
+            } else if (Utils.isHumo(dto.getCarNumber())){
                 card.setCurrency("UZS");
+            } else {
+                return ResponseDto.builder()
+                        .isError(true)
+                        .message("Invalid card type!!! HUMO and VISA only")
+                        .build();
             }
         } else {
             return ResponseDto.builder()
@@ -51,21 +57,22 @@ public class CardServiceImpl implements CardService {
                     .build();
         }
 
-        Optional<User> user = userRepository.findById(UUID.fromString(dto.getUser_id()));
-        card.setUser(user.get());
+        Optional<Users> user = userRepository.findById(dto.getUser_id());
+        card.setUsers(user.get());
 
         cardRepository.save(card);
 
         return ResponseDto.builder()
                 .isError(false)
-                .message("success")
+                .message("created")
                 .build();
+
     }
 
     @Override
     public ResponseDto<?> getMyCards(String id) {
 
-        List<Card> cards = cardRepository.getUsersCard(id);
+        List<CardsDetails> cards = cardRepository.getUsersCard(id);
         if (cards.isEmpty()){
             return ResponseDto.builder()
                     .isError(true)
@@ -81,6 +88,18 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public ResponseDto<?> getCardInfo(String cardNumber) {
-        return null;
+        Optional<CardInfo> cardInfo = cardRepository.getCardInfo(cardNumber);
+        if (cardInfo.isPresent()){
+            return ResponseDto.builder()
+                    .data(cardInfo.get())
+                    .message("success")
+                    .isError(false)
+                    .build();
+        }
+          return ResponseDto.builder()
+                .data(cardInfo.get())
+                .message("this card is not exist")
+                .isError(true)
+                .build();
     }
 }

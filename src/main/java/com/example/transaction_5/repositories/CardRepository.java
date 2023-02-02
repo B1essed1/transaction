@@ -2,6 +2,7 @@ package com.example.transaction_5.repositories;
 
 import com.example.transaction_5.entities.Card;
 import com.example.transaction_5.models.CardInfo;
+import com.example.transaction_5.models.CardsDetails;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,9 +14,10 @@ import java.util.Optional;
 @Repository
 public interface CardRepository extends JpaRepository<Card,Long > {
 
-    @Query("select Card from Card c where c.user.id = :id")
-    List<Card> getUsersCard(@Param("id") String id);
+    @Query("select new com.example.transaction_5.models.CardsDetails(c.id,c.balance,c.name,c.card_number,c.type,c.currency) from Card c where c.users.id = :id")
+    List<CardsDetails> getUsersCard(@Param("id") String id);
 
-    Optional<CardInfo> getCardInfo();
+    @Query("select new  com.example.transaction_5.models.CardInfo(u.phone,c.card_number,c.type,c.id,u.id) from Card c join Users u on u.id = c.users.id where c.card_number=:card")
+    Optional<CardInfo> getCardInfo(@Param("card") String card);
 
 }

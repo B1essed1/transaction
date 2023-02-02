@@ -19,30 +19,37 @@ public class CardController {
 
     @PostMapping("add")
     ResponseEntity<?> addCard(@RequestBody CardDto cardDto) {
+
         ResponseDto response = cardService.addCard(cardDto);
+
         if (response.getIsError()) {
             return ResponseEntity.badRequest().body(response.getMessage());
         }
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response.getMessage());
     }
 
     @GetMapping("mine")
     ResponseEntity<?> myCards(@RequestParam("id") String id) {
         ResponseDto response = cardService.getMyCards(id);
+
         if (response.getIsError()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT FOUND");
+        }
+        return ResponseEntity.ok(response.getData());
+    }
+
+
+    @GetMapping("info")
+    ResponseEntity<?> cardInfo(@RequestParam("card") String cardNumber){
+
+        ResponseDto response = cardService.getCardInfo(cardNumber);
+
+        if (response.getIsError()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT FOUND");
         }
 
         return ResponseEntity.ok(response.getData());
     }
-
-
-    /*@GetMapping("info")
-    ResponseEntity<?> cardInfo(@RequestParam("card") String cardNumber){
-        ResponseDto response = cardService.getCardInfo(cardNumber);
-
-    }*/
-
-
 
 }

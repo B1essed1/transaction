@@ -1,7 +1,9 @@
 package com.example.transaction_5.controller;
 
+import com.example.transaction_5.entities.Users;
 import com.example.transaction_5.models.Registration;
 import com.example.transaction_5.models.ResponseDto;
+import com.example.transaction_5.security.JwtTokenCreator;
 import com.example.transaction_5.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +26,7 @@ public class UserController {
         if (response.getIsError()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(response.getMessage());
+        return ResponseEntity.status(HttpStatus.CREATED).body(JwtTokenCreator.createJwtToken((Users) response.getData()));
     }
 
     @PostMapping("login")
