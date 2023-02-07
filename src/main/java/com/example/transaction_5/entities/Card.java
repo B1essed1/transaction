@@ -14,7 +14,7 @@ public class Card {
     private Long balance;
     private String name;
     @Column(length = 16, unique = true)
-    private String card_number;
+    private String cardNumber;
     @Column(length = 10)
     private String type = "HUMO";
     @Column(length = 10)

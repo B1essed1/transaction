@@ -11,13 +11,15 @@ import javax.persistence.*;
 @Getter
 @Setter
 public class Rate {
+
     @Id
     private Long id;
     @Column(length =10)
-    private String from_currency;
+    private String fromCurrency;
 
     @Column(length =10)
-    private String to_currency;
+    private String toCurrency;
     private Long rate;
 
 }
+

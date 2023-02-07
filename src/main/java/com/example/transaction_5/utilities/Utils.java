@@ -2,12 +2,12 @@ package com.example.transaction_5.utilities;
 
 public class Utils {
 
-    public static Boolean isPhoneValid(String phone) {
-
-        //possible phone number regex with validates only this format {+998901234567} not {+998 90 123 45 67}
-        // this means without hyphen or space
-        String patter = "^(\\+998)([0-9]{2})([0-9]{7})$";
-        return phone.matches(patter);
+    public static boolean isPhoneValid(String phone) {
+        String pattern = "^\\+998[0-9]{2}[0-9]{7}$";
+        if (phone == null || !phone.matches(pattern)) {
+            return false;
+        }
+        return true;
     }
 
     public static Boolean isPasswordValid(String password) {
@@ -32,14 +32,14 @@ public class Utils {
 
 
     public static Boolean isVisa(String cardNumber) {
-        if (cardNumber.substring(0, 3).equals("4200"))
+        if (cardNumber.substring(0, 4).equals("4200"))
             return true;
         else
             return false;
     }
 
-    public static Boolean isHumo(String cardNumber) {
-        if (cardNumber.substring(0, 3).equals("9860"))
+    public static Boolean   isHumo(String cardNumber) {
+        if (cardNumber.substring(0, 4).equals("9860"))
             return true;
         else
             return false;

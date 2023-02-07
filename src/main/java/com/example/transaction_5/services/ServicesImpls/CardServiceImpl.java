@@ -30,15 +30,15 @@ public class CardServiceImpl implements CardService {
     @Transactional
     @Override
     public ResponseDto<?> addCard(CardDto dto) {
-        Card card = new Card();
+          Card card = new Card();
 
-        card.setBalance(dto.getBalance());
+        card.setBalance(dto.getBalance()*100);
         card.setName(dto.getName());
 
         // checking card is number for bad case scenarios this  validation is written
         // usually this validation is handled in client side
         if (Utils.isNumeric(dto.getCarNumber())) {
-            card.setCard_number(dto.getCarNumber());
+            card.setCardNumber(dto.getCarNumber());
             if (Utils.isVisa(dto.getCarNumber())) {
                 card.setType("VISA");
                 card.setCurrency("USD");
@@ -80,6 +80,10 @@ public class CardServiceImpl implements CardService {
                     .build();
         }
 
+        for (CardsDetails card:cards ) {
+            card.setBalance(Math.round(card.getBalance()/100d));
+        }
+
         return ResponseDto.builder()
                 .isError(false)
                 .data(cards)
@@ -89,7 +93,7 @@ public class CardServiceImpl implements CardService {
     @Override
     public ResponseDto<?> getCardInfo(String cardNumber) {
         Optional<CardInfo> cardInfo = cardRepository.getCardInfo(cardNumber);
-        if (cardInfo.isPresent()){
+            if (cardInfo.isPresent()){
             return ResponseDto.builder()
                     .data(cardInfo.get())
                     .message("success")
