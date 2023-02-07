@@ -71,7 +71,7 @@ public class TransactionServiceImpl implements TransactionService {
             }
             // Same currency, no conversion needed
             else {
-                transactions.setReceiverAmount(transactionDetails.getAmount()*100g);
+                transactions.setReceiverAmount(transactionDetails.getAmount()*100);
             }
 
 
