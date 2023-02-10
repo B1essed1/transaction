@@ -10,8 +10,9 @@ import com.example.transaction_5.repositories.RateRepository;
 import com.example.transaction_5.repositories.TransactionRepository;
 import com.example.transaction_5.services.TransactionService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -27,9 +28,11 @@ public class TransactionServiceImpl implements TransactionService {
         this.rateRepository = rateRepository;
     }
 
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public ResponseDto<?> requestTransaction(TransactionDetails transactionDetails) {
 
-        if (transactionRepository.findTransactionsByStatusAndSenderCardId("NEW",transactionDetails.getSenderCardId()).isEmpty()) {
+        if (transactionRepository.
+                findTransactionsByStatusAndSenderCardId("NEW",transactionDetails.getSenderCardId()).isEmpty()) {
             Card sendersCard = cardRepository.getById(transactionDetails.getSenderCardId());
             Card receiverCard = cardRepository.getById(transactionDetails.getReceiverCardId());
 
@@ -40,7 +43,7 @@ public class TransactionServiceImpl implements TransactionService {
             transactions.setSenderCardId(sendersCard.getId());
 
             // Check if sender has enough balance
-            if (sendersCard.getBalance() < transactionDetails.getAmount()*100) {
+            if (sendersCard.getBalance() < transactionDetails.getAmount()) {
                 return ResponseDto.builder()
                         .isError(true)
                         .message("There is not enough money in your card")
@@ -48,7 +51,7 @@ public class TransactionServiceImpl implements TransactionService {
             }
 
             // Deduct amount from sender's card balance
-            transactions.setSenderAmount(transactionDetails.getAmount()*100);
+            transactions.setSenderAmount(transactionDetails.getAmount());
 
             // Convert amount if currency type is different
             if (sendersCard.getType() != receiverCard.getType()) {
@@ -56,22 +59,24 @@ public class TransactionServiceImpl implements TransactionService {
 
                 // UZS to other currency
                 if (rate.getFromCurrency().equals("UZS")) {
-                    if (transactionDetails.getAmount() < rate.getRate()*100) {
+                    if (transactionDetails.getAmount() < rate.getRate()) {
                         return ResponseDto.builder()
                                 .isError(true)
                                 .message("you must transfer money more than " + rate.getRate())
                                 .build();
                     }
-                    transactions.setReceiverAmount(Math.round(transactionDetails.getAmount()*100d / rate.getRate()));
+                    long receiverAmount =  transactionDetails.getAmount()% rate.getRate();
+                    transactions.setReceiverAmount(receiverAmount);
+                    transactions.setSenderAmount(receiverAmount*rate.getRate());
                 }
                 // Other currency to UZS
                 else {
-                    transactions.setReceiverAmount(transactionDetails.getAmount() * rate.getRate()*100);
+                    transactions.setReceiverAmount(transactionDetails.getAmount() * rate.getRate());
                 }
             }
             // Same currency, no conversion needed
             else {
-                transactions.setReceiverAmount(transactionDetails.getAmount()*100);
+                transactions.setReceiverAmount(transactionDetails.getAmount());
             }
 
 
@@ -96,12 +101,17 @@ public class TransactionServiceImpl implements TransactionService {
         try {
             Card sendersCard = cardRepository.getById(transaction.getSenderCardId());
             Card receiverCard = cardRepository.getById(transaction.getReceiverCardId());
-            sendersCard.setBalance(sendersCard.getBalance() - transaction.getSenderAmount());
-            receiverCard.setBalance(receiverCard.getBalance() + transaction.getReceiverAmount());
-            transaction.setStatus("SUCCESS");
-            cardRepository.save(sendersCard);
-            cardRepository.save(receiverCard);
-            transactionRepository.save(transaction);
+            if (sendersCard.getBalance()>transaction.getSenderAmount()) {
+                sendersCard.setBalance(sendersCard.getBalance() - transaction.getSenderAmount());
+                receiverCard.setBalance(receiverCard.getBalance() + transaction.getReceiverAmount());
+                transaction.setStatus("SUCCESS");
+                cardRepository.save(sendersCard);
+                cardRepository.save(receiverCard);
+                transactionRepository.save(transaction);
+            } else {
+                transaction.setStatus("ERROR");
+                transactionRepository.save(transaction);
+            }
         } catch (Exception e) {
             transaction.setStatus("ERROR");
             transactionRepository.save(transaction);

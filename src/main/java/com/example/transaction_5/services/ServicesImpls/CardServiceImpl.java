@@ -32,7 +32,7 @@ public class CardServiceImpl implements CardService {
     public ResponseDto<?> addCard(CardDto dto) {
           Card card = new Card();
 
-        card.setBalance(dto.getBalance()*100);
+        card.setBalance(dto.getBalance());
         card.setName(dto.getName());
 
         // checking card is number for bad case scenarios this  validation is written

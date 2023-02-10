@@ -9,6 +9,10 @@ public class SwaggerConstants {
     public static final String  API_TITLE="Mini Transaction API";
     public static final String  API_DESCRIPTION="...............";
     public static final String  TERMS_OF_SERVICE="terms of service will go there";
+
+
+
+
     public static final String  API_VERSION ="1.0.0";
     public static final String  LICENSE ="MIT";
     public static final String  LICENSE_URL ="https:/t.me/b1essed1";

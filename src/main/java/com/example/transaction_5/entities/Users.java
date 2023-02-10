@@ -1,11 +1,14 @@
 package com.example.transaction_5.entities;
 
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -21,7 +24,7 @@ public class Users implements UserDetails {
     private String password;
 
     @Column(length = 10)
-    private String status= "ACTIVE";
+    private String status = "ACTIVE";
 
 
     @Override
@@ -51,7 +54,10 @@ public class Users implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        if (this.status == "ACTIVE")
+            return true;
+        else
+            return false;
     }
 
     @Override
