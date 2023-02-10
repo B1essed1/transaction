@@ -56,7 +56,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             // if phone number valid then validates phone number if it's ok then it is saved
             if (Utils.isPasswordValid(registration.getPassword())){
                 Users users = new Users();
-                users.setPassword(passwordEncoder.encode(registration.getPassword()));
+              //  users.setPassword(passwordEncoder.encode(registration.getPassword()));
+                users.setPassword(registration.getPassword());
                 users.setPhone(registration.getPhone());
                 userRepository.save(users);
                 return ResponseDto.builder()
@@ -91,9 +92,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             //checks user is there or not if there then checks is password is correct
             // if success then permission is kinda granted
             if (user.isPresent()){
-                if (user.get().getPassword().equals(registration.getPassword())){
+               //  String password = passwordEncoder.encode(registration.getPassword());
+                 String password =registration.getPassword();
+                if (user.get().getPassword().equals(password)){
                     return ResponseDto.builder()
-                            .message("Successfully logged in")
+                            .data(user.get())
+                            .message("Successfully logg     ed in")
                             .isError(false).build();
                 } else {
                     return ResponseDto.builder()

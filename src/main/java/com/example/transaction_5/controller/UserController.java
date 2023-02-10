@@ -37,7 +37,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.getMessage());
         }
 
-        return ResponseEntity.ok(response.getMessage());
+        return ResponseEntity.ok(JwtTokenCreator.createJwtToken((Users) response.getData()));
     }
 
     @DeleteMapping("delete")
